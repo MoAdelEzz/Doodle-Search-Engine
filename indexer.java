@@ -11,10 +11,9 @@ import java.util.Vector;
 
 public class indexer implements Runnable {
 
+    static HashMap<String, HashMap<String, ArrayList<Integer>>> idx = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
+    static ArrayList<TableStructISA> table;
     ArrayList<String> stopWords;
-    ArrayList<TableStructISA> table;
-
-    HashMap<String, HashMap<String, ArrayList<Integer>>> idx = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
 
     public indexer(ArrayList<TableStructISA> ar) {
         this.table = ar;
@@ -30,7 +29,7 @@ public class indexer implements Runnable {
 
     }
 
-    public void main(String args[]) {
+    public static void main(String args[]) {
         for (int i = 0; i < table.size(); i++) {
             TableStructISA tempTable = table.get(i);
             Integer tempID = tempTable.id;
