@@ -4,10 +4,10 @@ import org.jsoup.select.Elements;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-
+//test
 public class crawler
 {
-    public static void main(String args[])
+    public void main(String args[])
     {
 
         try{
@@ -29,7 +29,6 @@ public class crawler
         }
         catch(IOException ex)
         {
-            System.out.println("A7a");
         }
 
     }
