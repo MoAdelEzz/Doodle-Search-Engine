@@ -30,7 +30,9 @@ public class Indexer_Filter {
 
     public static String FilterContent(String S)
     {
-        // to do : implement filtering later
+        S = S.replaceAll("[^a-zA-Z0-9]","");
+
+        S = S.toLowerCase();
         return S;
     }
 
@@ -61,16 +63,28 @@ public class Indexer_Filter {
 
         for (int i = 0; i < tags.length; i++)
         {
-            String Query = tags[i]+":not(:has(*))";
+            String Query = tags[i];
             Elements E = page.select(Query);
             TableStruct Arr[] = new TableStruct[E.size()];
 
             for (int j = 0; j < E.size(); j++)
             {
-                String Content = FilterContent(E.get(j).text());
+                String Content = FilterContent(E.get(j).ownText());
+
+                Content = FilterContent(Content);
+
+                try {
+                    Integer.parseInt(Content);
+                    continue;
+                }
+                catch (Exception Ex)
+                {
+                    // do nothing => not the whole string are numbers
+                }
 
                 if (Content == "")
                     break;
+
 
                 mp.add(new TableStruct(Randomid,url,Content,tags[i]));
                 Randomid++;
