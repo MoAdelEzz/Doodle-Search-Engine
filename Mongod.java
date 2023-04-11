@@ -5,22 +5,53 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+
+import java.lang.reflect.Field;
+
 public class Mongod {
 
-    public static void main(String[] args) {
+    String dbname = "search_engine";
+    MongoClient client = null;
+    MongoDatabase db = null;
 
-            MongoClient client = MongoClients.create("mongodb://localhost:27017");
+    private void start_server()
+    {
+        MongoClient client = MongoClients.create("mongodb://localhost:27017");
 
-            MongoDatabase db = client.getDatabase("test");
+        MongoDatabase db = client.getDatabase("test");
+    }
 
-            MongoCollection col = db.getCollection("humans");
+    private void close_server()
+    {
+        client.close();
+    }
 
-            Document sampleDoc = new Document("_id", "1").append("name", "John Smith");
+    private Document class_to_document(Object obj)
+    {
+        Document D = new Document();
 
-            col.insertOne(sampleDoc);
+        Field[] fields = obj.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true); // allow access to private fields
+            String name = field.getName();
+            Object value = null;
+            try {
+                value = field.get(obj);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            D.append(name,value);
+        }
 
-            client.close();
+        return D;
+    }
 
-
+    public void insert_into_db(String collection_name, Object obj)
+    {
+        start_server();
+        Document D = class_to_document(obj);
+        MongoCollection col = db.getCollection(collection_name);
+        col.insertOne(D);
+        close_server();
     }
 }
