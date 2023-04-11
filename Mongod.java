@@ -41,6 +41,7 @@ public class Mongod {
                 throw new RuntimeException(e);
             }
             D.append(name,value);
+            // {id: 0 , Enc..:}
         }
 
         return D;
