@@ -6,6 +6,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 
 public class Mongod {
@@ -14,11 +15,12 @@ public class Mongod {
     MongoClient client = null;
     MongoDatabase db = null;
 
+
     private void start_server()
     {
-        MongoClient client = MongoClients.create("mongodb://localhost:27017");
+         client = MongoClients.create("mongodb://localhost:27017");
 
-        MongoDatabase db = client.getDatabase("test");
+         db = client.getDatabase("test");
     }
 
     private void close_server()
@@ -53,6 +55,18 @@ public class Mongod {
         Document D = class_to_document(obj);
         MongoCollection col = db.getCollection(collection_name);
         col.insertOne(D);
-        close_server();
+    }
+    public static void main(String[] args) throws IOException, IllegalAccessException {
+        Mongod mongo = new Mongod();
+        mongo.start_server();
+        Human hima = new Human("hima");
+        mongo.insert_into_db("humans",hima);
+        return;
+    }
+}
+class Human{
+    String name;
+    public Human(String name) {
+        this.name = name;
     }
 }
