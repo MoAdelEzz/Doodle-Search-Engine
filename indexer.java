@@ -10,6 +10,17 @@ import java.util.Set;
 import java.util.Vector;
 
 
+class kareem
+{
+    String word;
+    String pageID;
+
+    int tagID;
+
+    int count;
+};
+
+
 public class indexer implements Runnable {
 
     static HashMap<String, HashMap<String, ArrayList<Integer>>> idx = new HashMap<String, HashMap<String, ArrayList<Integer>>>();

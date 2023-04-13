@@ -1,14 +1,14 @@
-import java.awt.*;
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import java.lang.reflect.Field;
 
 class TableStruct
 {
@@ -30,7 +30,9 @@ public class Indexer_Filter {
 
     public static String FilterContent(String S)
     {
-        // to do : implement filtering later
+        S = S.replaceAll("[^a-zA-Z0-9]","");
+
+        S = S.toLowerCase();
         return S;
     }
 
@@ -45,15 +47,41 @@ public class Indexer_Filter {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, IllegalAccessException {
+
+
+
 
         // change the url to any page you want
-        String url = "https://codeforces.com/";
+        String url = "https://www.mongodb.com/basics/create-database";
 
         // all possible tags i thought about till now
         // updatable
         String tags[] = {"h1","h2","h3","h4","h5","h6","p","a","div","small","td","label","span","li","section","strong","tr"};
         Document page = Jsoup.connect(url).get();
+
+        System.out.println(page.body() + "\n ================================= \n");
+
+        //================================================================================================
+        MessageDigest digest = null;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        // change page.body ... to yourstring.getbytes
+        byte[] hash = digest.digest(page.body().toString().getBytes());
+
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        String sha256String = hexString.toString();
+        System.out.println("SHA-256 Hash Value: " + sha256String);
+        //================================================================================================
+
 
         ArrayList<TableStruct> mp = new ArrayList<TableStruct>();
 
@@ -61,16 +89,29 @@ public class Indexer_Filter {
 
         for (int i = 0; i < tags.length; i++)
         {
-            String Query = tags[i]+":not(:has(*))";
+            String Query = tags[i];
             Elements E = page.select(Query);
             TableStruct Arr[] = new TableStruct[E.size()];
 
             for (int j = 0; j < E.size(); j++)
             {
-                String Content = FilterContent(E.get(j).text());
+                String Content = FilterContent(E.get(j).ownText());
+
+                Content = FilterContent(Content);
+
+                try {
+                    Integer.parseInt(Content);
+                    continue;
+                }
+                catch (Exception Ex)
+                {
+                    // do nothing => not the whole string are numbers
+                }
 
                 if (Content == "")
                     break;
+
+
 
                 mp.add(new TableStruct(Randomid,url,Content,tags[i]));
                 Randomid++;
