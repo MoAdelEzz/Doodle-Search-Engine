@@ -24,10 +24,10 @@ class kareem
 public class indexer implements Runnable {
 
     static HashMap<String, HashMap<String, ArrayList<Integer>>> idx = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
-    static ArrayList<TableStruct> table;
+    static ArrayList<url_tag> table;
     ArrayList<String> stopWords;
 
-    public indexer(ArrayList<TableStruct> ar) {
+    public indexer(ArrayList<url_tag> ar) {
         this.table = ar;
         stopWords = new ArrayList<>();
         stopWords.add("a");
@@ -42,13 +42,19 @@ public class indexer implements Runnable {
 
     }
 
+    public static void entry(ArrayList<url_tag> list)
+    {
+        table = list;
+    }
+
+
     public void main() {
         for (int i = 0; i < table.size(); i++) {
-            TableStruct tempTable = table.get(i);
+            url_tag tempTable = table.get(i);
             Integer tempID = tempTable.id;
-            String tempEncodedURL = tempTable.EncodedURL;
+            String tempEncodedURL = tempTable.uid;
             String tempContent = tempTable.Content;
-            String tempTagType = tempTable.TagType;
+            String tempTagType = tempTable.tagname;
 
 
             String tempWord = "";

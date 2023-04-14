@@ -8,6 +8,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
+
 import java.lang.reflect.Field;
 
 class TableStruct
@@ -24,6 +26,24 @@ class TableStruct
 
 }
 
+class url_document
+{
+    String uid; // generated encode
+    String url; // url
+    String _id; // mongo id
+    int indexer_visited; // indexer flag
+    int sid; // to make it bfs auto incremental
+    int crawler_visited; // crawler flag
+};
+
+class url_tag
+{
+    int id;
+    String uid;
+    String tagname;
+    String Content;
+}
+
 public class Indexer_Filter {
 
     HashMap<String,String> Site;
@@ -36,33 +56,31 @@ public class Indexer_Filter {
         return S;
     }
 
-    public static void KareemAlaaFunc(ArrayList<TableStruct> mp)
-    {
-        Thread T = new Thread(new indexer(mp));
-        T.start();
-        try {
-            T.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static void main(String[] args) throws IOException, IllegalAccessException {
 
 
-
-
         // change the url to any page you want
-        String url = "https://www.mongodb.com/basics/create-database";
+
+        Mongod mongo = new Mongod();
+        url_document row =  mongo.get_indexer_filter_input();
+
+        String url = row.url;
+        System.out.println("url = " + url);
 
         // all possible tags i thought about till now
         // updatable
         String tags[] = {"h1","h2","h3","h4","h5","h6","p","a","div","small","td","label","span","li","section","strong","tr"};
+
+        HashMap<String,Integer> cnt = new HashMap<String, Integer>();
+
         Document page = Jsoup.connect(url).get();
 
-        System.out.println(page.body() + "\n ================================= \n");
+        //System.out.println(page.body() + "\n ================================= \n");
 
         //================================================================================================
+        // used to encrypt the content of the url
+        /*
         MessageDigest digest = null;
         try {
             digest = MessageDigest.getInstance("SHA-256");
@@ -80,10 +98,12 @@ public class Indexer_Filter {
         }
         String sha256String = hexString.toString();
         System.out.println("SHA-256 Hash Value: " + sha256String);
+
+         */
         //================================================================================================
 
 
-        ArrayList<TableStruct> mp = new ArrayList<TableStruct>();
+        ArrayList<url_tag> mp = new ArrayList<url_tag>();
 
         int Randomid = 0;
 
@@ -111,15 +131,24 @@ public class Indexer_Filter {
                 if (Content == "")
                     break;
 
+                cnt.putIfAbsent(tags[i],0);
+                cnt.put(tags[i],cnt.get(tags[i])+1);
 
+                url_tag ut = new url_tag();
+                ut.uid = row.uid;
+                ut.id = cnt.get(tags[i]);
+                ut.tagname = tags[i];
+                ut.Content = Content;
 
-                mp.add(new TableStruct(Randomid,url,Content,tags[i]));
-                Randomid++;
+                System.out.println(Content);
+
+                mongo.insert_into_db("tags_content",ut);
+                mp.add(ut);
             }
         }
 
+
         // mp Now Contain Broken html page to the second part of indexer
-        KareemAlaaFunc(mp);
 
         return ;
 
