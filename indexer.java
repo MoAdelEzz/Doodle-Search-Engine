@@ -4,16 +4,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
+
+
+import opennlp.tools.stemmer.*;
 
 
 class kareem {
     String word;
     String pageID;
-
     int tagID;
 
     int count;
@@ -26,10 +25,13 @@ public class indexer implements Runnable {
     static Mongod mongodb;
     ArrayList<String> stopWords;
 
+    PorterStemmer ps = new PorterStemmer();
+
+
     public indexer(ArrayList<url_tag> ar) {
         mongodb = new Mongod();
-
         this.table = ar;
+        
         stopWords = new ArrayList<>();
         stopWords.add("a");
         stopWords.add("about");
