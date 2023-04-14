@@ -147,10 +147,6 @@ public class Indexer_Filter {
             }
         }
 
-
-        // mp Now Contain Broken html page to the second part of indexer
-
-        return ;
-
+        indexer i = new indexer(mp);
     }
 }
