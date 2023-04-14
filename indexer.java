@@ -10,8 +10,7 @@ import java.util.Set;
 import java.util.Vector;
 
 
-class kareem
-{
+class kareem {
     String word;
     String pageID;
 
@@ -38,7 +37,7 @@ public class indexer implements Runnable {
         stopWords.add("again");
         stopWords.add("against");
         stopWords.add("all");
-
+// test
 
     }
 
