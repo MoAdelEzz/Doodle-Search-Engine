@@ -9,25 +9,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-
 import java.lang.reflect.Field;
 
-class TableStruct
-{
+class TableStruct {
     int id;
     String EncodedURL;
     String Content;
     String TagType;
 
-    TableStruct(int ID,String u,String c,String t)
-    {
-        id = ID; EncodedURL = u; Content = c; TagType = t;
+    TableStruct(int ID, String u, String c, String t) {
+        id = ID;
+        EncodedURL = u;
+        Content = c;
+        TagType = t;
     }
 
 }
 
-class url_document
-{
+class url_document {
     String uid; // generated encode
     String url; // url
     String _id; // mongo id
@@ -36,8 +35,7 @@ class url_document
     int crawler_visited; // crawler flag
 };
 
-class url_tag
-{
+class url_tag {
     int id;
     String uid;
     String tagname;
@@ -46,11 +44,10 @@ class url_tag
 
 public class Indexer_Filter {
 
-    HashMap<String,String> Site;
+    HashMap<String, String> Site;
 
-    public static String FilterContent(String S)
-    {
-        S = S.replaceAll("[^a-zA-Z0-9]","");
+    public static String FilterContent(String S) {
+        S = S.replaceAll("[^a-zA-Z0-9 ]", "");
 
         S = S.toLowerCase();
         return S;
@@ -63,16 +60,16 @@ public class Indexer_Filter {
         // change the url to any page you want
 
         Mongod mongo = new Mongod();
-        url_document row =  mongo.get_indexer_filter_input();
+        url_document row = mongo.get_indexer_filter_input();
 
         String url = row.url;
         System.out.println("url = " + url);
 
         // all possible tags i thought about till now
         // updatable
-        String tags[] = {"h1","h2","h3","h4","h5","h6","p","a","div","small","td","label","span","li","section","strong","tr"};
+        String tags[] = {"h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "div", "small", "td", "label", "span", "li", "section", "strong", "tr", "ul"};
 
-        HashMap<String,Integer> cnt = new HashMap<String, Integer>();
+        HashMap<String, Integer> cnt = new HashMap<String, Integer>();
 
         Document page = Jsoup.connect(url).get();
 
@@ -107,14 +104,12 @@ public class Indexer_Filter {
 
         int Randomid = 0;
 
-        for (int i = 0; i < tags.length; i++)
-        {
+        for (int i = 0; i < tags.length; i++) {
             String Query = tags[i];
             Elements E = page.select(Query);
-            TableStruct Arr[] = new TableStruct[E.size()];
+            //TableStruct Arr[] = new TableStruct[E.size()];
 
-            for (int j = 0; j < E.size(); j++)
-            {
+            for (int j = 0; j < E.size(); j++) {
                 String Content = FilterContent(E.get(j).ownText());
 
                 Content = FilterContent(Content);
@@ -122,17 +117,15 @@ public class Indexer_Filter {
                 try {
                     Integer.parseInt(Content);
                     continue;
-                }
-                catch (Exception Ex)
-                {
+                } catch (Exception Ex) {
                     // do nothing => not the whole string are numbers
                 }
 
                 if (Content == "")
                     break;
 
-                cnt.putIfAbsent(tags[i],0);
-                cnt.put(tags[i],cnt.get(tags[i])+1);
+                cnt.putIfAbsent(tags[i], 0);
+                cnt.put(tags[i], cnt.get(tags[i]) + 1);
 
                 url_tag ut = new url_tag();
                 ut.uid = row.uid;
@@ -142,11 +135,12 @@ public class Indexer_Filter {
 
                 System.out.println(Content);
 
-                mongo.insert_into_db("tags_content",ut);
+                mongo.insert_into_db("tags_content", ut);
                 mp.add(ut);
             }
         }
 
         indexer i = new indexer(mp);
+        i.main();
     }
 }
