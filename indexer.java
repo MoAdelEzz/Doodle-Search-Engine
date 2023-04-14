@@ -22,11 +22,13 @@ class kareem {
 
 public class indexer implements Runnable {
 
-    static HashMap<String, HashMap<String, ArrayList<Integer>>> idx = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
     static ArrayList<TableStruct> table;
+    static Mongod mongodb;
     ArrayList<String> stopWords;
 
     public indexer(ArrayList<TableStruct> ar) {
+        mongodb = new Mongod();
+
         this.table = ar;
         stopWords = new ArrayList<>();
         stopWords.add("a");
@@ -41,37 +43,24 @@ public class indexer implements Runnable {
 
     }
 
-    public void main() {
+    public static void main(String argv[]) {
         for (int i = 0; i < table.size(); i++) {
             TableStruct tempTable = table.get(i);
             Integer tempID = tempTable.id;
             String tempEncodedURL = tempTable.EncodedURL;
             String tempContent = tempTable.Content;
             String tempTagType = tempTable.TagType;
+            HashMap<String, Integer> idx = new HashMap<String, Integer>();
 
 
             String tempWord = "";
             for (int j = 0; j < tempContent.length() + 1; j++) {
                 if (j == tempContent.length() || tempContent.charAt(j) == ' ') {
                     if (idx.containsKey(tempWord)) {
-                        HashMap<String, ArrayList<Integer>> tempMap = idx.get(tempWord);
-                        if (tempMap.containsKey(tempEncodedURL)) {
-                            ArrayList<Integer> tempList = tempMap.get(tempEncodedURL);
-                            tempList.add(tempID);
-                            tempMap.putIfAbsent(tempEncodedURL, tempList);
-                            idx.putIfAbsent(tempWord, tempMap);
-                        } else {
-                            ArrayList<Integer> tempList = new ArrayList<Integer>();
-                            tempList.add(tempID);
-                            tempMap.put(tempEncodedURL, tempList);
-                            idx.putIfAbsent(tempWord, tempMap);
-                        }
+                        Integer cnt = idx.get(tempWord);
+                        idx.put(tempWord, cnt + 1);
                     } else {
-                        HashMap<String, ArrayList<Integer>> tempMap = new HashMap<String, ArrayList<Integer>>();
-                        ArrayList<Integer> tempList = new ArrayList<Integer>();
-                        tempList.add(tempID);
-                        tempMap.put(tempEncodedURL, tempList);
-                        idx.put(tempWord, tempMap);
+                        idx.put(tempWord, 1);
                     }
                     // by moa
                     tempWord = "";
@@ -79,11 +68,26 @@ public class indexer implements Runnable {
                     tempWord = tempWord.concat(String.valueOf(tempContent.charAt(j)));
                 }
             }
+
+
+            for (HashMap.Entry<String, Integer> entry : idx.entrySet()) {
+                String temps = entry.getKey();
+                Integer tempcnt = entry.getValue();
+                kareem insertedTable = new kareem();
+                insertedTable.word = temps;
+                insertedTable.count = tempcnt;
+                insertedTable.pageID = tempEncodedURL;
+                insertedTable.tagID = tempID;
+                mongodb.insert_into_db("indexerTable", insertedTable);
+
+            }
+
+
         }
 
-        Set<String> s = idx.keySet();
+        //Set<String> s = idx.keySet();
 
-        System.out.println(s);
+        //System.out.println(s);
     }
 
 

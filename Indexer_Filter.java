@@ -10,34 +10,34 @@ import java.util.HashMap;
 
 import java.lang.reflect.Field;
 
-class TableStruct
-{
+class TableStruct {
     int id;
     String EncodedURL;
     String Content;
     String TagType;
 
-    TableStruct(int ID,String u,String c,String t)
-    {
-        id = ID; EncodedURL = u; Content = c; TagType = t;
+    TableStruct(int ID, String u, String c, String t) {
+        id = ID;
+        EncodedURL = u;
+        Content = c;
+        TagType = t;
     }
 
 }
 
+
 public class Indexer_Filter {
 
-    HashMap<String,String> Site;
+    HashMap<String, String> Site;
 
-    public static String FilterContent(String S)
-    {
-        S = S.replaceAll("[^a-zA-Z0-9]","");
+    public static String FilterContent(String S) {
+        S = S.replaceAll("[^a-zA-Z0-9]", "");
 
         S = S.toLowerCase();
         return S;
     }
 
-    public static void KareemAlaaFunc(ArrayList<TableStruct> mp)
-    {
+    public static void KareemAlaaFunc(ArrayList<TableStruct> mp) {
         Thread T = new Thread(new indexer(mp));
         T.start();
         try {
@@ -50,14 +50,12 @@ public class Indexer_Filter {
     public static void main(String[] args) throws IOException, IllegalAccessException {
 
 
-
-
         // change the url to any page you want
         String url = "https://www.mongodb.com/basics/create-database";
 
         // all possible tags i thought about till now
         // updatable
-        String tags[] = {"h1","h2","h3","h4","h5","h6","p","a","div","small","td","label","span","li","section","strong","tr"};
+        String tags[] = {"h1", "h2", "h3", "h4", "h5", "h6", "p", "a", "div", "small", "td", "label", "span", "li", "section", "strong", "tr"};
         Document page = Jsoup.connect(url).get();
 
         System.out.println(page.body() + "\n ================================= \n");
@@ -87,14 +85,12 @@ public class Indexer_Filter {
 
         int Randomid = 0;
 
-        for (int i = 0; i < tags.length; i++)
-        {
+        for (int i = 0; i < tags.length; i++) {
             String Query = tags[i];
             Elements E = page.select(Query);
             TableStruct Arr[] = new TableStruct[E.size()];
 
-            for (int j = 0; j < E.size(); j++)
-            {
+            for (int j = 0; j < E.size(); j++) {
                 String Content = FilterContent(E.get(j).ownText());
 
                 Content = FilterContent(Content);
@@ -102,9 +98,7 @@ public class Indexer_Filter {
                 try {
                     Integer.parseInt(Content);
                     continue;
-                }
-                catch (Exception Ex)
-                {
+                } catch (Exception Ex) {
                     // do nothing => not the whole string are numbers
                 }
 
@@ -112,8 +106,7 @@ public class Indexer_Filter {
                     break;
 
 
-
-                mp.add(new TableStruct(Randomid,url,Content,tags[i]));
+                mp.add(new TableStruct(Randomid, url, Content, tags[i]));
                 Randomid++;
             }
         }
@@ -121,7 +114,7 @@ public class Indexer_Filter {
         // mp Now Contain Broken html page to the second part of indexer
         KareemAlaaFunc(mp);
 
-        return ;
+        return;
 
     }
 }

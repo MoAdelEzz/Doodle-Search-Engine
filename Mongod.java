@@ -1,5 +1,3 @@
-
-
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -15,21 +13,25 @@ public class Mongod {
     MongoClient client = null;
     MongoDatabase db = null;
 
-
-    private void start_server()
-    {
-         client = MongoClients.create("mongodb://localhost:27017");
-
-         db = client.getDatabase("test");
+    public static void main(String[] args) throws IOException, IllegalAccessException {
+        Mongod mongo = new Mongod();
+        mongo.start_server();
+        Human hima = new Human("hima");
+        mongo.insert_into_db("humans", hima);
+        return;
     }
 
-    private void close_server()
-    {
+    private void start_server() {
+        client = MongoClients.create("mongodb://localhost:27017");
+
+        db = client.getDatabase("test");
+    }
+
+    private void close_server() {
         client.close();
     }
 
-    private Document class_to_document(Object obj)
-    {
+    private Document class_to_document(Object obj) {
         Document D = new Document();
 
         Field[] fields = obj.getClass().getDeclaredFields();
@@ -42,30 +44,24 @@ public class Mongod {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
-            D.append(name,value);
+            D.append(name, value);
             // {id: 0 , Enc..:}
         }
 
         return D;
     }
 
-    public void insert_into_db(String collection_name, Object obj)
-    {
+    public void insert_into_db(String collection_name, Object obj) {
         start_server();
         Document D = class_to_document(obj);
         MongoCollection col = db.getCollection(collection_name);
         col.insertOne(D);
     }
-    public static void main(String[] args) throws IOException, IllegalAccessException {
-        Mongod mongo = new Mongod();
-        mongo.start_server();
-        Human hima = new Human("hima");
-        mongo.insert_into_db("humans",hima);
-        return;
-    }
 }
-class Human{
+
+class Human {
     String name;
+
     public Human(String name) {
         this.name = name;
     }
