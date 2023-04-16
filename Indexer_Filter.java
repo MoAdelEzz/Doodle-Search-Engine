@@ -112,6 +112,8 @@ public class Indexer_Filter implements Runnable {
 
                 for (int j = 0; j < E.size(); j++) {
                     String Content = FilterContent(E.get(j).ownText());
+                    if (Content == "")
+                        continue;
 
                     Content = FilterContent(Content);
 

@@ -58,7 +58,7 @@ find.onclick = ()=>
         
         if (urlExists(q))
         {
-            window.location.replace(q);
+          window.open(q, "_self");
         }
     }
 }
