@@ -132,8 +132,8 @@ public class Indexer_Filter implements Runnable {
                     Randomid++;
                 }
             }
-            indexer i = new indexer(mp,mongo);
-            i.main();
+            indexer i = new indexer(mongo);
+            i.main(mp);
         }
     }
 }

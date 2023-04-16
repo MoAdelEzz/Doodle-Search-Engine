@@ -22,16 +22,16 @@ class kareem {
 
 public class indexer implements Runnable {
 
-    static ArrayList<url_tag> table;
+    //static ArrayList<url_tag> table;
     Mongod mongodb;
     ArrayList<String> stopWords;
 
-    public indexer(ArrayList<url_tag> ar,Mongod mongo) {
-        synchronized (mongo) {
+    public indexer(Mongod mongo) {
+        synchronized (mongo.lock) {
             mongodb = mongo;
         }
 
-        this.table = ar;
+        //this.table = ar;
         stopWords = new ArrayList<>();
         stopWords.add("a");
         stopWords.add("about");
@@ -45,7 +45,8 @@ public class indexer implements Runnable {
         // main();
     }
 
-    public void main() {
+    public void main( ArrayList<url_tag> table)
+    {
         for (int i = 0; i < table.size(); i++) {
             url_tag tempTable = table.get(i);
             Integer tempID = tempTable.id;
@@ -81,7 +82,7 @@ public class indexer implements Runnable {
                 insertedTable.pageID = tempEncodedURL;
                 insertedTable.tagID = tempID;
 
-                synchronized (mongodb) {
+                synchronized (mongodb.lock) {
                     mongodb.insert_into_db("indexerTable", insertedTable);
                 }
             }
@@ -97,6 +98,6 @@ public class indexer implements Runnable {
 
     @Override
     public void run() {
-        main();
+        //main();
     }
 }

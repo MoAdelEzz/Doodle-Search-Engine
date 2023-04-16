@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Java-Search-Engine.iml" filepath="$PROJECT_DIR$/Java-Search-Engine.iml" />
+      <module fileurl="file://$PROJECT_DIR$/java-quick-start.iml" filepath="$PROJECT_DIR$/java-quick-start.iml" />
     </modules>
   </component>
 </project>
