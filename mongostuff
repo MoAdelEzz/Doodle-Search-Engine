@@ -12,4 +12,23 @@
 
  db.urls.insertOne({url:"https://moadelezz.github.io/deleteThis/",sid:7,uid:"7",indexer_visited:0,crawler_visited:0})
 
+ db.urls.insertOne({url:"https://moadelezz.github.io/deleteThis/",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+
+
+                    "https://www.reddit.com",
+                    "https://www.bbc.com/news",
+                    "https://www.youtube.com",
+                    "https://github.com",
+                    "https://medium.com",
+                    "https://stackoverflow.com",
+                    "https://www.amazon.com",
+                    "https://www.quora.com",
+                    "https://www.yelp.com"
+
+db.urls.insertOne({url:"https://www.reddit.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://www.bbc.com/news",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://www.youtube.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://medium.com",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://stackoverflow.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+
  ###

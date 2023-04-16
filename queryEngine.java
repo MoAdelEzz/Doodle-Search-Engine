@@ -9,7 +9,7 @@ import java.util.*;
 
 public class queryEngine {
     static public void main(String[] args) {
-        String s = "Where Can i get some";//
+        String s = "reddit";//
         String[] arr = s.split(" ");
         Mongod mongod = new Mongod();
         mongod.start_server();

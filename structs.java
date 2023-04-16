@@ -1,11 +1,16 @@
+import org.bson.types.ObjectId;
+
+import java.util.ArrayList;
 
 class url_document {
     String uid; // generated encode
     String url; // url
-    String _id; // mongo id
+    ObjectId _id; // mongo id
     int indexer_visited; // indexer flag
     int sid; // to make it bfs auto incremental
     int crawler_visited; // crawler flag
+
+    ArrayList<String> urls_points_to_this_document;
 };
 
 class url_tag {

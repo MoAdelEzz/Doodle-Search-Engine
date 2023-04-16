@@ -54,6 +54,9 @@ public class Indexer_Filter implements Runnable {
         s = body.getAllElements();
         for (Element e : s)
         {
+            if (e.tagName() == "script" || e.tagName() == "noscript")
+                continue;
+
             int i = 0;
             for (i = 0; i < tagnames.size(); i++)
             {
@@ -82,11 +85,13 @@ public class Indexer_Filter implements Runnable {
                 row = mongo.get_indexer_filter_input();
             }
 
+
             if (row == null) {
                 System.out.println("No Urls To Index :)");
                 return;
             }
 
+            System.out.println("Working On " + row.url);
             String url = row.url;
 
             if (url == null) {
@@ -95,10 +100,17 @@ public class Indexer_Filter implements Runnable {
             }
             // to save the number of elements of the same type in one page
 
-
-            Document page = Jsoup.connect(url).get();
+            Document page;
+            try {
+                page = Jsoup.connect(url).get();
+            }
+            catch (Exception e)
+            {
+                continue;
+            }
 
             ArrayList<String> tags = get_tag_names(page);
+
 
             ArrayList<url_tag> mp = new ArrayList<url_tag>();
 
