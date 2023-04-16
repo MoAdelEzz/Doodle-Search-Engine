@@ -65,14 +65,6 @@ public class Mongod {
             col.insertOne(D);
         }
     }
-    public void main(String[] args) throws IOException, IllegalAccessException {
-        Mongod mongo = new Mongod();
-        mongo.start_server();
-        Human hima = new Human("hima");
-        mongo.insert_into_db("humans",hima);
-        return;
-    }
-
 
     public url_document get_indexer_filter_input()
     {

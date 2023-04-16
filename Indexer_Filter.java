@@ -71,7 +71,7 @@ public class Indexer_Filter implements Runnable {
     }
 
 
-    public void main() throws IOException {
+     public void main() throws IOException {
 
         // change the url to any page you want
         while(true) {
@@ -115,9 +115,10 @@ public class Indexer_Filter implements Runnable {
 
                     Content = FilterContent(Content);
 
-                    if (Content == "")
+                    if (Content.length() == 0)
                         continue;
 
+                    if (Content != ""){
                     url_tag ut = new url_tag();
                     ut.uid = row.uid;
                     ut.id = Randomid;
@@ -130,6 +131,7 @@ public class Indexer_Filter implements Runnable {
 
                     mp.add(ut);
                     Randomid++;
+                    }
                 }
             }
             indexer i = new indexer(mongo);
