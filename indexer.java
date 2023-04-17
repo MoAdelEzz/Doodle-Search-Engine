@@ -4,15 +4,16 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.*;
-
-
-import opennlp.tools.stemmer.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Vector;
 
 
 class kareem {
     String word;
     String pageID;
+
     int tagID;
 
     int count;
@@ -21,17 +22,16 @@ class kareem {
 
 public class indexer implements Runnable {
 
-    static ArrayList<url_tag> table;
-    static Mongod mongodb;
+    //static ArrayList<url_tag> table;
+    Mongod mongodb;
     ArrayList<String> stopWords;
 
-    PorterStemmer ps = new PorterStemmer();
+    public indexer(Mongod mongo) {
+        synchronized (mongo.lock) {
+            mongodb = mongo;
+        }
 
-
-    public indexer(ArrayList<url_tag> ar) {
-        mongodb = new Mongod();
-        this.table = ar;
-        
+        //this.table = ar;
         stopWords = new ArrayList<>();
         stopWords.add("a");
         stopWords.add("about");
@@ -45,7 +45,8 @@ public class indexer implements Runnable {
         // main();
     }
 
-    public void main() {
+    public void main( ArrayList<url_tag> table)
+    {
         for (int i = 0; i < table.size(); i++) {
             url_tag tempTable = table.get(i);
             Integer tempID = tempTable.id;
@@ -80,8 +81,10 @@ public class indexer implements Runnable {
                 insertedTable.count = tempcnt;
                 insertedTable.pageID = tempEncodedURL;
                 insertedTable.tagID = tempID;
-                mongodb.insert_into_db("indexerTable", insertedTable);
 
+                synchronized (mongodb.lock) {
+                    mongodb.insert_into_db("indexerTable", insertedTable);
+                }
             }
 
 
@@ -95,6 +98,6 @@ public class indexer implements Runnable {
 
     @Override
     public void run() {
-        main();
+        //main();
     }
 }

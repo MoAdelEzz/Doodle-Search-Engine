@@ -1,31 +1,47 @@
 
 
 import com.mongodb.client.*;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Sorts;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.logging.*;
+
 
 public class Mongod {
 
+    String lock = "";
     String dbname = "search_engine";
-    static MongoClient client = null;
-    static MongoDatabase db = null;
+    MongoClient client = null;
+    MongoDatabase db = null;
+
+    ArrayList<String> mongooooooooooo;
 
 
-    private static void start_server()
+    public void start_server()
     {
+        Logger logger = Logger.getLogger("org.mongodb.driver");
+        logger.setLevel(Level.SEVERE);
+
          client = MongoClients.create("mongodb://localhost:27017");
 
          db = client.getDatabase("test");
+         mongooooooooooo = new ArrayList<String>();
+
     }
 
-    private static void close_server()
+    public void close_server()
     {
         client.close();
     }
 
-    private static Document class_to_document(Object obj)
+    private Document class_to_document(Object obj)
     {
         Document D = new Document();
 
@@ -46,55 +62,188 @@ public class Mongod {
         return D;
     }
 
-    public static void insert_into_db(String collection_name, Object obj)
+    public void insert_into_db(String collection_name, Object obj)
     {
-        start_server();
-        Document D = class_to_document(obj);
-        MongoCollection col = db.getCollection(collection_name);
-        col.insertOne(D);
-    }
-    public static void main(String[] args) throws IOException, IllegalAccessException {
-        Mongod mongo = new Mongod();
-        mongo.start_server();
-        Human hima = new Human("hima");
-        mongo.insert_into_db("humans",hima);
-        return;
+        synchronized(this) {
+            Document D = class_to_document(obj);
+            MongoCollection col = db.getCollection(collection_name);
+            col.insertOne(D);
+        }
     }
 
-
-    public static url_document get_indexer_filter_input()
+    public url_document get_indexer_filter_input()
     {
-        start_server();
+        synchronized (this) {
+            //start_server();
 
-        Document query = new Document("indexer_visited",0);
-        Document sortby = new Document("defined_id",1);
+            Document query = new Document("indexer_visited", 0);
+            Document sortby = new Document("defined_id", 1);
+
+            FindIterable<Document> ret;
+            Document resultDocument = null;
+
+            // Malek Output Change later if you need
+            MongoCollection col = db.getCollection("urls");
+
+            ret = col.find(query).sort(sortby).limit(1);
+            resultDocument = ret.first();
+
+            if (resultDocument == null) {
+                return null;
+            }
+
+            ObjectId O = new ObjectId(resultDocument.get("_id").toString());
+            //String O = resultDocument.get("_id").toString();
+
+            Document q1 = new Document("_id", O);
+            Document q2 = new Document("$set", new Document("indexer_visited", 1));
+
+            col.updateOne(q1, q2);
+
+            url_document ud = null;
+
+            System.out.println("the shit is : " + resultDocument.toString());
+
+            ud = new url_document();
+            ud.url = resultDocument.getString("url");
+            ud.sid = (resultDocument.get("sid") instanceof Integer) ? resultDocument.getInteger("sid") : resultDocument.getDouble("sid").intValue();
+            ud.uid = resultDocument.getString("uid");
+            ud._id = new ObjectId(resultDocument.get("_id").toString());
+            ud.indexer_visited = (resultDocument.get("indexer_visited") instanceof Integer) ? resultDocument.getInteger("indexer_visited") : resultDocument.getDouble("indexer_visited").intValue();
+            ud.crawler_visited = (resultDocument.get("crawler_visited") instanceof Integer) ? resultDocument.getInteger("crawler_visited") : resultDocument.getDouble("crawler_visited").intValue();
+
+            return ud;
+        }
+    }
+
+    // Functions Of The Crawler =============================================================================================
+
+    public boolean check_repeated_url(String url) // this function checks for repeted urls
+    {
+        //start_server();
+        MongoCollection<Document> col = db.getCollection("urls");
+        Document D = new Document("url",url);
+        return col.find(D).iterator().available() > 1;
+    }
+
+    public boolean check_repeated_uid(String uid) // This function checks for repeated web pages with different urls
+    {
+        //start_server();
+        MongoCollection<Document> col = db.getCollection("urls");
+        Document D = new Document("uid",uid);
+        return col.find(D).iterator().available() > 1;
+    }
+
+    public ArrayList<Document> get_previous_urls()
+    {
+        //start_server();
+        MongoCollection<Document> col = db.getCollection("urls");
+        MongoCursor<Document> cursor = col.find().iterator();
+        ArrayList<Document> documents = new ArrayList<>();
+        try {
+            while (cursor.hasNext()) {
+                Document doc = cursor.next();
+                documents.add(doc);
+            }
+        } finally {
+            cursor.close();
+        }
+        return documents;
+    }
+
+    public int get_index_to_continou_crawling()
+    {
+        //start_server();
+        MongoCollection<Document> col = db.getCollection("urls");
+        Document D = new Document("crawler_visited",1);
+        return col.find(D).iterator().available();
+    }
+    public url_document make_crawler_document(String url,String uid, int j)
+    {
+        url_document urlDocument = new url_document();
+        urlDocument.url = url;
+        urlDocument.uid = uid;
+        // this is wrong i think
+        urlDocument.sid = j;
+        urlDocument._id = new ObjectId();
+        urlDocument.crawler_visited = 0;
+        urlDocument.indexer_visited = 0;
+        urlDocument.urls_points_to_this_document = new ArrayList<>();
+
+        return urlDocument;
+    }
+
+    public void update_crawler_visited(String url)
+    {
+        //start_server();
+        MongoCollection<Document> col = db.getCollection("urls");
+        Bson filter = Filters.eq("url", url);
+        Bson updateOperation = Updates.set("crawler_visited", 1);
+        // create an update operation to modify the document
+        col.updateOne(filter, updateOperation);
+    }
+
+    public  void add_url1_to_url2List(String url1, String url2)
+    {
+        //start_server();
+
+        // i changed url1 to url2 as you add to the second one why you modify the first
+        Document query = new Document("url",url2);
 
         // Malek Output Change later if you need
-        MongoCollection col = db.getCollection("urls");
+        MongoCollection<Document> col = db.getCollection("urls");
 
-        FindIterable<Document> ret = col.find(query).sort(sortby).limit(1);
+        FindIterable<Document> ret = col.find(query);
 
-        url_document ud = new url_document();
+        url_document ud = null;
 
         for (Document D : ret)
         {
+            ud = new url_document();
+            //System.out.println(D.toString());
             ud.url = D.getString("url");
-            ud.sid = D.getDouble("sid").intValue();
+            ud.sid = (D.get("sid") instanceof Integer) ? D.getInteger("sid") : D.getDouble("sid").intValue();
             ud.uid = D.getString("uid");
-            ud._id = D.get("_id").toString();
-            ud.indexer_visited = D.getDouble("indexer_visited").intValue();
-            ud.crawler_visited = D.getDouble("crawler_visited").intValue();
+            ud._id = new ObjectId(D.get("_id").toString());
+            ud.indexer_visited = (D.get("indexer_visited") instanceof Integer) ? D.getInteger("indexer_visited") : D.getDouble("indexer_visited").intValue();
+            ud.crawler_visited = (D.get("crawler_visited") instanceof Integer) ? D.getInteger("crawler_visited") : D.getDouble("crawler_visited").intValue();
+            ud.urls_points_to_this_document = (ArrayList<String>) D.get("urls_points_to_this_document");
         }
 
-        close_server();
+        if (ud == null)
+            return;
+        System.out.println(ud.toString());
 
-        return ud;
+        if(!ud.urls_points_to_this_document.contains(url1))
+        {
+            ud.urls_points_to_this_document.add(url1);
+            Bson filter = Filters.eq("url", url2);
+            col.deleteMany(filter);
+            col.insertOne(class_to_document(ud));
+        }
+        //close_server();
     }
 
-}
-class Human{
-    String name;
-    public Human(String name) {
-        this.name = name;
+    public String get_next_document_to_visit()
+    {
+
+        Document query = new Document("crawler_visited",0);
+
+        MongoCollection<Document> col = db.getCollection("urls");
+
+        FindIterable<Document> ret = col.find(query).sort(Sorts.ascending("sid")).limit(1);
+
+        // moa is edited here
+        String url = null;
+
+        for (Document D : ret)
+        {
+            url = D.getString("url");
+        }
+
+        return url;
     }
+
+
+
 }

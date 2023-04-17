@@ -10,6 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="java-quick-start" target="1.5" />
       <module name="Java-Search-Engine" target="1.8" />
     </bytecodeTargetLevel>
   </component>

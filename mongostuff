@@ -1,0 +1,34 @@
+###
+
+
+
+ db.urls.insertOne({url:"https://facebook.com",sid:1,uid:"1",indexer_visited:0,crawler_visited:0})
+ db.urls.insertOne({url:"https://crawler-test.com/mobile/dynamic",sid:2,uid:"2",indexer_visited:0,crawler_visited:0})
+ db.urls.insertOne({url:"https://crawler-test.com/titles/duplicate_title/bar",sid:3,uid:"3",indexer_visited:0,crawler_visited:0})
+ db.urls.insertOne({url:"https://crawler-test.com/titles/page_title_leading_trailing_spaces",sid:4,uid:"4",indexer_visited:0,crawler_visited:0})
+ db.urls.insertOne({url:"https://crawler-test.com/mobile/separate_amp_with_self_canonical",sid:5,uid:"5",indexer_visited:0,crawler_visited:0})
+ db.urls.insertOne({url:"https://crawler-test.com/robots_protocol/robots_noindexed_and_robots_disallowed",sid:6,uid:"6",indexer_visited:0,crawler_visited:0})
+ db.urls.insertOne({url:"https://crawler-test.com/mobile/desktop_with_self_canonical_mobile_and_amp",sid:7,uid:"7",indexer_visited:0,crawler_visited:0})
+
+ db.urls.insertOne({url:"https://moadelezz.github.io/deleteThis/",sid:7,uid:"7",indexer_visited:0,crawler_visited:0})
+
+ db.urls.insertOne({url:"https://moadelezz.github.io/deleteThis/",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+
+
+                    "https://www.reddit.com",
+                    "https://www.bbc.com/news",
+                    "https://www.youtube.com",
+                    "https://github.com",
+                    "https://medium.com",
+                    "https://stackoverflow.com",
+                    "https://www.amazon.com",
+                    "https://www.quora.com",
+                    "https://www.yelp.com"
+
+db.urls.insertOne({url:"https://www.reddit.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://www.bbc.com/news",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://www.youtube.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://medium.com",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://stackoverflow.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+
+ ###
