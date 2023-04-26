@@ -1,0 +1,21 @@
+db.urls.drop()
+db.urls.insertOne({url:"https://www.bbc.com/news",sid:7,uid:"1",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://www.gsmarena.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://en.wikipedia.org/wiki/Main_Page",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://www.github.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://www.gamespot.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://www.reddit.com/",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://www.amazon.com/",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://stackoverflow.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+db.urls.insertOne({url:"https://www.tutorialspoint.com",sid:7,uid:"7",indexer_visited:0,crawler_visited:0, urls_points_to_this_document:[]})
+
+
+"https://www.bbc.com/news"
+"https://www.gsmarena.com"
+"https://en.wikipedia.org/wiki/Main_Page"
+"https://www.github.com"
+"https://www.gamespot.com"
+"https://www.reddit.com/"
+"https://www.amazon.com/"
+"https://stackoverflow.com"
+"https://www.tutorialspoint.com"
