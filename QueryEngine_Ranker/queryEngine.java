@@ -5,6 +5,7 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
+import javax.print.Doc;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -36,10 +37,15 @@ public class queryEngine {
 
             System.out.println(curLetter);
 
+            /* modified this for paimon angry talking speed
             ArrayList<String> _DocsHaveMyWordIDs
                     = mongod.db.getCollection("indexerTable")
                     .distinct("pageID", Filters.eq("word", curLetter), String.class)
                     .into(new ArrayList<>());
+            */
+
+            ArrayList<Document> _DocsHaveMyWordIDs = mongod.db.getCollection("indexerTable")
+                    .find(Filters.eq("word",curLetter)).into( new ArrayList<Document>());
 
             //System.out.println(_DocsHaveMyWordIDs.size());
             double IDF = Math.log(_ofallDocs / _DocsHaveMyWordIDs.size());
@@ -50,27 +56,21 @@ public class queryEngine {
 //            }
 
             //////////////        TF              ////////////////////
-            for (String d : _DocsHaveMyWordIDs) {
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-                LocalDateTime now = LocalDateTime.now();
+            for (Document doc : _DocsHaveMyWordIDs) {
 
+                String d = doc.getString("pageID");
 
+                /* for paimon speed
                 int _ofMyWord2 = mongod.db.getCollection("indexerTable")
                         .find(Filters.and(Filters.eq("word", curLetter),
                                 Filters.eq("pageID", d))).first().getInteger("count");
+                */
 
-                System.out.println("time after getting the count of word in this doc"+ dtf.format(now));
+                int _ofMyWord2 = doc.getInteger("count");
 
-                ArrayList<Document> _ofWordsInDoc = mongod.db.getCollection("indexerTable")
-                        .find(Filters.eq("pageID", d)).into(new ArrayList<>());
+                int countOfWords = mongod.db.getCollection("urls")
+                        .find(Filters.eq("uid", d)).first().getInteger("total_words");
 
-                now = LocalDateTime.now();
-                System.out.println("time after getting the count of all word in this doc" + dtf.format(now));
-
-                int countOfWords =0;
-                for (Document x:_ofWordsInDoc) {
-                    countOfWords += x.getInteger("count");
-                }
 
                 double TF = (double) _ofMyWord2 /(double) countOfWords;
                 if (TF >= 0.5) {
@@ -89,8 +89,6 @@ public class queryEngine {
                 prioTable.get(d).add(new Pair<String, Double>(curLetter, wordPriority));
                 System.out.printf("%s hash %s has priority %.5f\n", d,prioTable.get(d).get(0).getElement0(), prioTable.get(d).get(0).getElement1());
 
-                now = LocalDateTime.now();
-                System.out.println(dtf.format(now));
             }
         }
         for (Map.Entry<String, ArrayList<Pair<String, Double>>> entry : prioTable.entrySet()) {

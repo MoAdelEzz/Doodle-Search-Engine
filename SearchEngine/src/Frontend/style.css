@@ -1,0 +1,258 @@
+:root
+{
+    --google-blue : #0086F9;
+    --google-red: #FF4131;
+    --google-green: #00aa4a;
+    --google-yellow: #febd00;
+    --bs-dark: #212529;
+}
+
+body
+{
+    height: 100%;
+}
+
+.cover
+{
+    height: 100vh;
+}
+
+.dark
+{
+    background-color: rgb(32,33,36);
+}
+
+.light
+{
+    background-color: light;
+}
+
+
+.centered
+{
+    position: relative;
+    top: 25%;
+
+    width: 100%;
+    margin: auto;
+
+
+    justify-content: center;
+
+    
+    padding: auto;
+    text-align: center;
+    height: auto;
+    
+    align-items: center;
+}
+
+
+.GBlue
+{
+    color: var(--google-blue);
+}
+.GRed
+{
+    color: var(--google-red);
+}
+.GGreen
+{
+    color: var(--google-green);
+}
+.GYellow
+{
+    color: var(--google-yellow);
+}
+
+
+.SEName-dark
+{
+    font-size: 100px;
+    word-spacing: 10px;
+    color: white;
+    text-align: center;
+}
+
+.SEName-light
+{
+    font-size: 100px;
+    letter-spacing: 40px;
+    word-spacing: 10px;
+    color: white;
+    text-align: center;
+}
+
+
+.SEName-light span
+{
+    text-shadow: -1px 1px 4px black;
+    text-align: center;
+}
+
+#searchField
+{
+    border-radius: 8px;
+
+    font-size: 15px;
+    font-weight: 300;
+    text-indent: 10px;
+    
+    height: 45px;
+
+    border-color: rgba(0,0,0,0.3);
+    
+    box-shadow: 1px 1px 10px rgba(0,0,0,0.1);    
+}
+
+.searchField-dark
+{
+    background-color: transparent;
+    border-color: #5f6368 !important;
+    color: white !important;
+}
+
+.searchField-dark:focus
+{
+    background-color: transparent;
+    border-color: #5f6368 !important;
+
+}
+
+#searchField::placeholder
+{
+    color: rgba(0,0,0,0.4);
+}
+
+.searchField-dark::placeholder
+{
+    color: white !important;
+}
+
+._shadow
+{
+    box-shadow: 0px 0px 10px ;
+}
+
+
+#searchField:focus
+{
+    box-shadow: none;
+    outline: none;
+    border-color: #007bff;
+}
+
+
+
+
+
+.btn
+{
+    background-color: rgb(128, 128, 128,0.1);
+    border: 1px solid black;
+    border-color: rgba(0,0,0,0.5);
+    box-shadow: 1px 1px 10px rgba(0,0,0,0.1);
+    color: black;
+    width: 100%;
+}
+
+.btn-dark
+{
+    background-color: rgb(48,49,52);
+    color: white;
+}
+
+@media (max-width : 750px) {
+    .input-group
+    {
+        width: 90% !important; 
+    }
+    .SEName-light
+    {
+        font-size: 90px;
+    }
+    .SEName-dark
+    {
+        font-size: 90px;
+    }
+    #searchField
+    {
+        width: 100% !important;
+        margin: auto;
+    }
+    .btn
+    {
+        width: 60%;
+    }
+}
+
+@media (max-width: 500px) {
+    .SEName-light
+    {
+        font-size: 50px;
+        word-spacing: 0px;
+        letter-spacing: 30px;
+        text-align: right;
+    }
+    .SEName-dark
+    {
+        font-size: 50px;
+        word-spacing: 0px;
+        letter-spacing: 5px;
+    }
+}
+
+.btn:hover
+{
+    background-color: rgba(82, 82, 82, 0.1);
+    border-color: rgba(0,0,0,0.5);
+    
+}
+
+
+.theme-container {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.5s;
+  }
+  
+  .theme-container:hover {
+    opacity: 0.8;
+  }
+  
+  .shadow-dark {
+    background: linear-gradient(145deg, #23282c, #1e2125);
+    box-shadow: 17px 17px 23px #1a1d20,
+      -17px -17px 23px #282d32, inset 5px 5px 4px #1e2226,
+      inset -5px -5px 4px #24282c;
+  }
+  
+  .shadow-light {
+    background-color: white;
+    box-shadow: 7px 7px 15px -10px #bbcfda, -4px -4px 13px #ffffff,
+      inset 7px 7px 3px rgba(209, 217, 230, 0.35),
+      inset -11px -11px 3px rgba(255, 255, 255, 0.3)
+  }
+  
+  @keyframes change {
+    0% {
+      transform: scale(1);
+    }
+  
+    100% {
+      transform: scale(1.4);
+    }
+  }
+  
+  .change {
+    animation-name: change;
+    animation-duration: 1s;
+    animation-direction: alternate;
+  }

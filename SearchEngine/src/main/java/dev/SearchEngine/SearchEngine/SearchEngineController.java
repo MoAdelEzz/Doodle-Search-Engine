@@ -21,7 +21,13 @@ public void haha(){
 
     @GetMapping("/")
     public ArrayList<String> get (){
-        return krkr;
+
+        System.out.println("here");
+    ArrayList<String> s = new ArrayList<>();
+    s.add("mohamed");
+    s.add("adel");
+
+    return krkr;
     }
 
 @PostMapping("/query")
@@ -29,8 +35,8 @@ public String create (@RequestBody String searchQuery){
  queryEngine MoA = new queryEngine();
     ArrayList<String> tempArr = new ArrayList<String>();
      tempArr =  MoA.main(searchQuery);
-krkr = tempArr;
-   // krkr.add(searchQuery);
+      krkr = tempArr;
+  //  krkr.add(searchQuery);
     return searchQuery;
 }
 

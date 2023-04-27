@@ -111,14 +111,16 @@ public class indexer implements Runnable {
 
     public boolean isStopWord(String s) throws FileNotFoundException {
         File file = new File("stopwords.txt");
+        s = s.toLowerCase();
         boolean check = false;
         final Scanner scanner = new Scanner(file);
         while (scanner.hasNextLine()) {
             final String lineFromFile = scanner.nextLine();
-            if (lineFromFile == s) {
+            if (lineFromFile.equals(s)) {
                 check = true;
                 break;
             }
+
         }
         return check;
     }
