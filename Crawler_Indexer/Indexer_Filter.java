@@ -3,10 +3,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import javax.print.Doc;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Indexer_Filter implements Runnable {
 
@@ -26,7 +24,7 @@ public class Indexer_Filter implements Runnable {
 
     public boolean isParsableAsInt(String input) {
         try {
-            Integer.parseInt(input);
+            Long.parseLong(input);
             return true;
         } catch (NumberFormatException e) {
             return false;
@@ -34,15 +32,20 @@ public class Indexer_Filter implements Runnable {
     }
 
     public String FilterContent(String S) {
-        S = S.replaceAll("[^a-zA-Z0-9 ]", "");
 
-        if (isParsableAsInt(S.replaceAll("[ ]","")))
+        String Filtered = "";
+        String[] Words = S.split(" ");
+        for (String Word : Words)
         {
-            S = "";
-        }
+            int begin = 0;
+            while (begin < Word.length() && Word.charAt(begin) == ' ') begin++;
+            Word = Word.substring(begin);
 
-        S = S.toLowerCase();
-        return S;
+            if (Word.replaceAll("[a-zA-Z]","").length() != 0) continue;
+
+            Filtered = Filtered.concat(" " + Word);
+        }
+        return Filtered;
     }
 
     public ArrayList<String> get_tag_names(Document page)
@@ -55,18 +58,17 @@ public class Indexer_Filter implements Runnable {
         {
             return null;
         }
-
         Element body = s.get(0);
         s = body.getAllElements();
         for (Element e : s)
         {
-            if (e.tagName() == "script" || e.tagName() == "noscript")
+            if (e.tagName().equals("script") || e.tagName().equals("noscript"))
                 continue;
 
             int i = 0;
             for (i = 0; i < tagnames.size(); i++)
             {
-                if (tagnames.get(i) == e.tagName())
+                if (tagnames.get(i).equals(e.tagName()))
                 {
                     break;
                 }
@@ -76,6 +78,7 @@ public class Indexer_Filter implements Runnable {
                 tagnames.add(e.tagName());
             }
         }
+        tagnames.add("meta");
         return tagnames;
     }
 
@@ -84,10 +87,6 @@ public class Indexer_Filter implements Runnable {
         ArrayList<Thread> T = new ArrayList<Thread>();
         for (int i = 0; i < _of_threads; i++)
         {
-            // uncomment this for indexer
-            //Thread t = new Thread(new Indexer_Filter(m));
-
-            // uncomment this for crawler
             Thread t = new Thread(new Indexer_Filter(m));
             T.add(t);
             t.start();
@@ -131,62 +130,73 @@ public class Indexer_Filter implements Runnable {
 
             Document page;
             try {
-                page = Jsoup.connect(url).get();
+                page = Jsoup.connect(url).timeout(3000).get();
             }
             catch (Exception e)
             {
                 continue;
             }
-
+            
+            // get all tags mentioned in the page
             ArrayList<String> tags = get_tag_names(page);
+            System.out.println("total tags count = " + tags.size());
 
-            if (tags == null)
-                continue;
+            if (tags == null) continue;
 
-            ArrayList<url_tag> mp = new ArrayList<url_tag>();
+            ArrayList<url_tag> mp = new ArrayList<>();
 
-            int Randomid = 0;
+            int tags_count = 0;
 
-            for (int i = 0; i < tags.size(); i++) {
-
-                String Query = tags.get(i);
+            // for each tag of the page
+            for (String tag_name : tags)
+            {
                 Elements E;
-
-                try {
-                    E = page.select(Query);
-                }
-                catch (Exception z)
+                try
                 {
+                    E = page.select(tag_name);
+                } catch (Exception z) {
                     continue;
                 }
 
+                for (Element element : E) {
+                    // filter the content of the current processing tag
+                    String Content = null;
 
-                for (int j = 0; j < E.size(); j++) {
-                    String Content = FilterContent(E.get(j).ownText());
-                    if (Content == "")
-                        continue;
+                    if (tag_name.equals("meta"))
+                    {
+                        Content = element.attr("content");
+                    }
+                    else
+                    {
+                        Content = element.ownText();
+                    }
 
-                    Content = FilterContent(Content);
+                    // empty tag case
+                    if (Content.equals("")) continue;
 
-                    if (Content.length() == 0)
-                        continue;
+                    String Filtered_Content = FilterContent(Content);
 
-                    if (Content != ""){
-                        url_tag ut = new url_tag();
-                        ut.uid = row.uid;
-                        ut.id = Randomid;
-                        ut.tagname = tags.get(i);
-                        ut.Content = Content;
+                    if (!Filtered_Content.equals(""))
+                    {
+                        // then it's good to go
+                        url_tag ut = new url_tag(tags_count,row.uid,tag_name,Filtered_Content,Content);
 
-                        synchronized (mongo.lock) {
-                            mongo.insert_into_db("tags_content", ut);
+                        synchronized (mongo.lock)
+                        {
+                            org.bson.Document obj = new org.bson.Document();
+                            obj.put("id",ut.id);
+                            obj.put("uid",ut.uid);
+                            obj.put("tagname",ut.tagname);
+                            obj.put("Content",ut.Original_Content);
+                            mongo.insert_indexer_filter_object(obj);
                         }
 
                         mp.add(ut);
-                        Randomid++;
+                        tags_count++;
                     }
                 }
             }
+
             indexer i = new indexer(mongo);
             i.main(mp);
         }

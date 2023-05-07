@@ -13,8 +13,8 @@ function ResultsPage() {
   });
 
   //console.log(results);
-  const arrayDataItems = results.map((item) => <li>{item}</li>);
-  return <div>{arrayDataItems}</div>;
+  const arrayDataItems = results.map((item) => <li> <a href={item}>{item}</a></li>);
+  return <ul>{arrayDataItems}</ul>;
 }
 
 export default ResultsPage;

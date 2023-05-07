@@ -1,25 +1,11 @@
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.*;
 import java.util.Scanner;
 
 import opennlp.tools.stemmer.PorterStemmer;
 
-
-class kareem {
-    String word;
-    String pageID;
-
-    ArrayList<Integer> tagID;
-
-    int count;
-};
 
 
 public class indexer implements Runnable {
@@ -37,32 +23,32 @@ public class indexer implements Runnable {
 
     public void main(ArrayList<url_tag> table) throws FileNotFoundException {
 
-        HashMap<String,kareem> h = new HashMap<String,kareem>();
+        HashMap<String,kareem> h = new HashMap<>();
         int total_words = 0;
 
-        for (int i = 0; i < table.size(); i++) {
-            url_tag tempTable = table.get(i);
+
+
+        for (url_tag tempTable : table)
+        {
             Integer tempID = tempTable.id;
             String tempEncodedURL = tempTable.uid;
             String tempContent = tempTable.Content;
-            String tempTagType = tempTable.tagname;
-            HashMap<String, Integer> idx = new HashMap<String, Integer>();
+            HashMap<String, Integer> idx = new HashMap<>();
 
+            String[] Words = tempContent.split(" ");
 
-            String tempWord = "";
-            for (int j = 0; j < tempContent.length(); j++) {
-                if ((j == tempContent.length() || tempContent.charAt(j) == ' ') && !isStopWord(tempWord)) {
-                    tempWord = stemming.stem(tempWord);
-                    if (idx.containsKey(tempWord)) {
-                        Integer cnt = idx.get(tempWord);
-                        idx.put(tempWord, cnt + 1);
-                    } else {
-                        idx.put(tempWord, 1);
-                    }
-                    // by moa
-                    tempWord = "";
+            for (String tempWord : Words)
+            {
+                tempWord = stemming.stem(tempWord);
+
+                if (tempWord.contains("[^ ]"))
+                    continue;
+
+                if (idx.containsKey(tempWord)) {
+                    Integer cnt = idx.get(tempWord);
+                    idx.put(tempWord, cnt + 1);
                 } else {
-                    tempWord = tempWord.concat(String.valueOf(tempContent.charAt(j)));
+                    idx.put(tempWord, 1);
                 }
             }
 
@@ -70,22 +56,19 @@ public class indexer implements Runnable {
                 String temps = entry.getKey();
                 Integer tempcnt = entry.getValue();
 
-                if (h.containsKey(temps))
-                {
+                if (h.containsKey(temps)) {
                     h.get(temps).tagID.add(tempID);
                     h.get(temps).count += tempcnt;
-                }
-                else
-                {
+                } else {
                     kareem insertedTable = new kareem();
-                    insertedTable.tagID = new ArrayList<Integer>();
+                    insertedTable.tagID = new ArrayList<>();
 
                     insertedTable.word = temps;
                     insertedTable.count = tempcnt;
                     insertedTable.pageID = tempEncodedURL;
                     insertedTable.tagID.add(tempID);
 
-                    h.put(temps,insertedTable);
+                    h.put(temps, insertedTable);
                 }
                 total_words++;
             }
@@ -93,6 +76,8 @@ public class indexer implements Runnable {
 
         synchronized (mongodb.lock) {
             for (Map.Entry<String, kareem> e : h.entrySet()) {
+                if (e.getValue().word.equals("")) continue;
+
                 mongodb.insert_into_db("indexerTable", e.getValue());
             }
             if (table.size() > 0) {

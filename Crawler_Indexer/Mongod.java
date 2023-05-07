@@ -20,7 +20,7 @@ public class Mongod {
 
     int j;
     boolean crawler_init = false;
-    String lock = "";
+    final String lock = "";
     String dbname = "search_engine";
     MongoClient client = null;
     MongoDatabase db = null;
@@ -73,11 +73,15 @@ public class Mongod {
 
     public void insert_into_db(String collection_name, Object obj)
     {
-        synchronized(this) {
-            Document D = class_to_document(obj);
-            MongoCollection col = db.getCollection(collection_name);
-            col.insertOne(D);
-        }
+        Document D = class_to_document(obj);
+        MongoCollection<Document> col = db.getCollection(collection_name);
+        col.insertOne(D);
+    }
+
+    public void insert_indexer_filter_object(Document row)
+    {
+        MongoCollection<Document> col = db.getCollection("tags_content");
+        col.insertOne(row);
     }
 
     public url_document get_indexer_filter_input()

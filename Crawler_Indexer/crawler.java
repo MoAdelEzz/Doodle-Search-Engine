@@ -16,49 +16,45 @@ import java.util.Arrays;
 
 public class crawler implements Runnable {
 
-     final Object synco = new Object();
      Mongod mongo;
 
     crawler(Mongod m) {
         mongo = m;
     }
 
-    private  ArrayList<Thread> threads_array = new ArrayList<>();
-    private  final ArrayList<String> seed = new ArrayList<>(
+    private final ArrayList<Thread> threads_array = new ArrayList<>();
+    private final ArrayList<String> seed = new ArrayList<>(
             Arrays.asList(
-                    "https://en.wikipedia.org", // this is shitty errors website
-                    "https://www.reddit.com",
                     "https://www.bbc.com/news",
-                    "https://www.youtube.com",
-                    "https://github.com",
-                    "https://medium.com",
+                    "https://www.gsmarena.com",
+                    "https://en.wikipedia.org/wiki/Main_Page",
+                    "https://www.github.com",
+                    "https://www.gamespot.com",
+                    "https://www.reddit.com/",
+                    "https://www.amazon.com/",
                     "https://stackoverflow.com",
-                    "https://www.amazon.com",
-                    "https://www.quora.com"
-                    // "https://www.yelp.com"
+                    "https://www.tutorialspoint.com"
             ));
 
     public void run() {
         try {
             get_links_of_page();
         } catch (IOException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+
         }
     }
 
     public  void main(int _of_Threads){
         try {
             initialize_i_j();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         initialize_and_run_threads(_of_Threads);
     }
 
      void get_links_of_page() throws IOException, NoSuchAlgorithmException {
-        while (mongo.j < 5000) {
+        while (mongo.j < 6000) {
             String current_url;
             Document currDoc;
             synchronized (mongo.lock) {
@@ -77,10 +73,8 @@ public class crawler implements Runnable {
             }
 
             System.out.println("Started");
-            //ArrayList<String> valid_urls = new ArrayList<>();
-            //ArrayList<String> valid_txts = new ArrayList<>();
 
-            ArrayList<String> robotTxt= disallawed_urls_robot_txt(current_url);
+            ArrayList<String> robotTxt= disallowed_urls_robot_txt(current_url);
             Elements links = currDoc.select("a[href]");
 
             for (Element link : links) {
@@ -146,10 +140,17 @@ public class crawler implements Runnable {
         return hexString.toString();
     }
 
-     void add_seed_to_database() throws IOException, NoSuchAlgorithmException {
+     void add_seed_to_database() throws NoSuchAlgorithmException {
         for (int k = 0; k < seed.size(); k++) {
             String current_url = seed.get(k);
-            Document doc = Jsoup.connect(current_url).get();
+            Document doc;
+            try {
+                doc = Jsoup.connect(current_url).get();
+            }
+            catch (Exception E)
+            {
+                continue;
+            }
             String S = doc.body().text();
 
             mongo.insert_into_db("urls", mongo.make_crawler_document(current_url, encryptText(S), k + 1));
@@ -157,7 +158,7 @@ public class crawler implements Runnable {
         System.out.println("SEED FINISHED");
     }
 
-     void initialize_i_j() throws IOException, NoSuchAlgorithmException {
+     void initialize_i_j() throws NoSuchAlgorithmException {
         if (mongo.get_previous_urls_count() == 0) {
             mongo.j = seed.size();
 
@@ -201,7 +202,7 @@ public class crawler implements Runnable {
         }
     }
 
-     ArrayList<String> disallawed_urls_robot_txt(String baseUrl) throws IOException {
+     ArrayList<String> disallowed_urls_robot_txt(String baseUrl) throws IOException {
 
         String robotTxtUrl = baseUrl + "/robots.txt";
 

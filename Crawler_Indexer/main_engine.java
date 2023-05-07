@@ -1,6 +1,3 @@
-
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class main_engine {
@@ -15,7 +12,7 @@ public class main_engine {
         int ThreadCnt = s.nextInt();
 
         System.out.print("Crawler -c- / indexer -i- => ");
-        char type = (char) s.next().charAt(0);
+        char type = s.next().charAt(0);
 
         System.out.println(type);
         if (type == 'c')

@@ -21,20 +21,14 @@ public void haha(){
 
     @GetMapping("/")
     public ArrayList<String> get (){
-
-        System.out.println("here");
-    ArrayList<String> s = new ArrayList<>();
-    s.add("mohamed");
-    s.add("adel");
-
     return krkr;
     }
 
 @PostMapping("/query")
 public String create (@RequestBody String searchQuery){
- queryEngine MoA = new queryEngine();
+    searchCall MoA = new searchCall(10,searchQuery);
     ArrayList<String> tempArr = new ArrayList<String>();
-     tempArr =  MoA.main(searchQuery);
+     tempArr =  MoA.main();
       krkr = tempArr;
   //  krkr.add(searchQuery);
     return searchQuery;
