@@ -1,10 +1,8 @@
 package dev.SearchEngine.SearchEngine;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -21,16 +19,16 @@ public void haha(){
 
     @GetMapping("/")
     public ArrayList<String> get (){
-        return krkr;
+    return krkr;
     }
 
 @PostMapping("/query")
 public String create (@RequestBody String searchQuery){
- queryEngine MoA = new queryEngine();
+    searchCall MoA = new searchCall(10,searchQuery);
     ArrayList<String> tempArr = new ArrayList<String>();
-     tempArr =  MoA.main(searchQuery);
-krkr = tempArr;
-   // krkr.add(searchQuery);
+     tempArr =  MoA.main();
+      krkr = tempArr;
+  //  krkr.add(searchQuery);
     return searchQuery;
 }
 
