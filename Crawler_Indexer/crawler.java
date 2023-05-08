@@ -17,6 +17,8 @@ import java.util.Arrays;
 public class crawler implements Runnable {
 
      Mongod mongo;
+    double SEED_PRIORITY = 100;
+    double ratio = 0.6;
 
     crawler(Mongod m) {
         mongo = m;
@@ -25,16 +27,35 @@ public class crawler implements Runnable {
     private final ArrayList<Thread> threads_array = new ArrayList<>();
     private final ArrayList<String> seed = new ArrayList<>(
             Arrays.asList(
-                    "https://www.bbc.com/news",
-                    "https://www.gsmarena.com",
-                    "https://en.wikipedia.org/wiki/Main_Page",
-                    "https://www.github.com",
-                    "https://www.gamespot.com",
-                    "https://www.reddit.com/",
-                    "https://www.amazon.com/",
-                    "https://stackoverflow.com",
-                    "https://www.tutorialspoint.com"
+                    "https://twitter.com/animetv_jp/status/1611734963165995009"
+                    /*
+                                  "https://www.facebook.com/",
+                    "https://www.youtube.com/",
+                     */
+
             ));
+
+
+    public String handle_dot_slash(String parent_url, String url)
+    {
+        if (url.length() > 3 && url.substring(0,3).equals("../"))
+        {
+            int idx = parent_url.length() - 1;
+            while (idx >= 0 && parent_url.charAt(idx) != '/') idx--;
+            parent_url = parent_url.substring(0,idx);
+        }
+        int bidx = -1;
+
+        if (url.contains("/"))
+        {
+            bidx = 0;
+            while (bidx < url.length() && url.charAt(bidx) != '/') bidx++;
+        }
+
+        url = url.substring(bidx + 1);
+        return parent_url.concat(url);
+    }
+
 
     public void run() {
         try {
@@ -55,24 +76,28 @@ public class crawler implements Runnable {
 
      void get_links_of_page() throws IOException, NoSuchAlgorithmException {
         while (mongo.j < 6000) {
+
+            double curr_priority;
+
             String current_url;
             Document currDoc;
             synchronized (mongo.lock) {
                 current_url = mongo.get_next_document_to_visit();
                 mongo.update_crawler_visited(current_url);
+                curr_priority = mongo.get_priority(current_url);
             }
 
             if(current_url == null || current_url.isEmpty())
                 continue;
 
             try {
-                currDoc = Jsoup.connect(current_url).get();
+                currDoc = Jsoup.connect(current_url).timeout(3000).get();
                 // process the page contents
             } catch (IOException e) {
                 continue;
             }
 
-            System.out.println("Started");
+            System.out.println("Started crawling => " + current_url + ", page priority = " + current_url);
 
             ArrayList<String> robotTxt= disallowed_urls_robot_txt(current_url);
             Elements links = currDoc.select("a[href]");
@@ -82,7 +107,7 @@ public class crawler implements Runnable {
                 String link_url = link.attr("href");
 
                 if (!link_url.startsWith("https")) { // check if sublink
-                    link_url = current_url + link_url;
+                    link_url = handle_dot_slash(current_url,link_url);
                 }
 
                 if(link_url.charAt(link_url.length() - 1) == '/')
@@ -92,9 +117,10 @@ public class crawler implements Runnable {
                     link_url = sb.toString();
                 }
 
+                /*
                 if (!isValidUrl(link_url)) // check invalid url
                     continue;
-
+                */
                 if(robotTxt != null && robotTxt.contains(link_url)) {
                     System.out.println("ERROR ROBOT.TXT");
                     continue;
@@ -103,7 +129,7 @@ public class crawler implements Runnable {
                 Document linkDoc;
 
                 try {
-                    linkDoc = Jsoup.connect(link_url).get();
+                    linkDoc = Jsoup.connect(link_url).timeout(3000).get();
                     // process the page contents
                 } catch (IOException e) {
                     continue;
@@ -113,20 +139,25 @@ public class crawler implements Runnable {
                 String encrypted_text = encryptText(linkText);
 
                 synchronized (mongo.lock) {
-                    boolean b1 = mongo.check_repeated_uid(encrypted_text);
+                    boolean noSuchUid = mongo.check_repeated_uid(encrypted_text);
+                    System.out.println("checking url => " + link_url + ", result = " + noSuchUid + ", uid => " + encrypted_text);
                     //boolean b2 = mongo.check_repeated_url(link_url);
-                    if (b1) {
+                    if (noSuchUid)
+                    {
                         mongo.j++;
-                        mongo.insert_into_db("urls", mongo.make_crawler_document(link_url,encrypted_text, mongo.j));
+                        mongo.insert_into_db("urls", mongo.make_crawler_document(link_url,encrypted_text, curr_priority * ratio, mongo.j));
                         System.out.println("\n currLink: " + current_url + " --> subLink: " + link_url + "  j:" + mongo.j);
                     }
-                    mongo.add_url1_to_url2List(current_url, link_url);
+                    else
+                    {
+                        mongo.updatePriority(curr_priority, link_url);
+                    }
                 }
             }
         }
     }
 
-     String encryptText(String message) throws NoSuchAlgorithmException {
+     public String encryptText(String message) throws NoSuchAlgorithmException {
 
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hashBytes = digest.digest(message.getBytes(StandardCharsets.UTF_8));
@@ -140,12 +171,12 @@ public class crawler implements Runnable {
         return hexString.toString();
     }
 
-     void add_seed_to_database() throws NoSuchAlgorithmException {
+    void add_seed_to_database() throws NoSuchAlgorithmException {
         for (int k = 0; k < seed.size(); k++) {
             String current_url = seed.get(k);
             Document doc;
             try {
-                doc = Jsoup.connect(current_url).get();
+                doc = Jsoup.connect(current_url).timeout(3000).get();
             }
             catch (Exception E)
             {
@@ -153,7 +184,7 @@ public class crawler implements Runnable {
             }
             String S = doc.body().text();
 
-            mongo.insert_into_db("urls", mongo.make_crawler_document(current_url, encryptText(S), k + 1));
+            mongo.insert_into_db("urls", mongo.make_crawler_document(current_url, encryptText(S), SEED_PRIORITY,k + 1));
         }
         System.out.println("SEED FINISHED");
     }

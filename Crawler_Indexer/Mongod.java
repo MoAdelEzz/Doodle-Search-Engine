@@ -19,13 +19,11 @@ import java.util.logging.Logger;
 public class Mongod {
 
     int j;
-    boolean crawler_init = false;
     final String lock = "";
-    String dbname = "search_engine";
+    String dbname = "crawler_test";
     MongoClient client = null;
     MongoDatabase db = null;
 
-    ArrayList<String> mongooooooooooo;
 
 
     public void start_server()
@@ -40,9 +38,7 @@ public class Mongod {
 
         client = MongoClients.create("mongodb://localhost:27017");
 
-        db = client.getDatabase("test");
-        mongooooooooooo = new ArrayList<String>();
-
+        db = client.getDatabase(dbname);
     }
 
     public void close_server()
@@ -65,7 +61,6 @@ public class Mongod {
                 throw new RuntimeException(e);
             }
             D.append(name,value);
-            // {id: 0 , Enc..:}
         }
 
         return D;
@@ -95,7 +90,7 @@ public class Mongod {
             Document resultDocument = null;
 
             // Malek Output Change later if you need
-            MongoCollection col = db.getCollection("urls");
+            MongoCollection<Document> col = db.getCollection("urls");
 
             ret = col.find(query).sort(sortby).limit(1);
             resultDocument = ret.first();
@@ -151,41 +146,18 @@ public class Mongod {
         return col.countDocuments(D) == 0;
     }
 
-    public ArrayList<Document> get_previous_urls()
-    {
-        MongoCollection<Document> col = db.getCollection("urls");
-        MongoCursor<Document> cursor = col.find().iterator();
-        ArrayList<Document> documents = new ArrayList<>();
-        try {
-            while (cursor.hasNext()) {
-                Document doc = cursor.next();
-                documents.add(doc);
-            }
-        } finally {
-            cursor.close();
-        }
-        return documents;
-    }
 
-    public int get_index_to_continou_crawling()
-    {
-        //start_server();
-        MongoCollection<Document> col = db.getCollection("urls");
-        Document D = new Document("crawler_visited",1);
-        return col.find(D).iterator().available();
-    }
-    public url_document make_crawler_document(String url,String uid, int j)
+    public url_document make_crawler_document(String url, String uid, double priority,int j)
     {
         url_document urlDocument = new url_document();
         urlDocument.url = url;
         urlDocument.uid = uid;
-        // this is wrong i think
+        // this is wrong I think
         urlDocument.sid = j;
         urlDocument._id = new ObjectId();
         urlDocument.crawler_visited = 0;
         urlDocument.indexer_visited = 0;
-        urlDocument.urls_points_to_this_document = new ArrayList<>();
-
+        urlDocument.priority = priority * 0.9;
         return urlDocument;
     }
 
@@ -197,51 +169,6 @@ public class Mongod {
         Bson updateOperation = Updates.set("crawler_visited", 1);
         // create an update operation to modify the document
         col.updateOne(filter, updateOperation);
-    }
-
-    public  void add_url1_to_url2List(String url1, String url2)
-    {
-        //start_server();
-
-        // i changed url1 to url2 as you add to the second one why you modify the first
-        Document query = new Document("url",url2);
-
-        // Malek Output Change later if you need
-        MongoCollection<Document> col = db.getCollection("urls");
-
-        FindIterable<Document> ret = col.find(query);
-
-        url_document ud = null;
-
-        for (Document D : ret)
-        {
-            ud = new url_document();
-            //System.out.println(D.toString());
-
-
-            ud.url = D.getString("url");
-            ud.sid = (D.get("sid") instanceof Integer) ? D.getInteger("sid") : D.getDouble("sid").intValue();
-            ud.uid = D.getString("uid");
-            ud._id = new ObjectId(D.get("_id").toString());
-            ud.indexer_visited = (D.get("indexer_visited") instanceof Integer) ? D.getInteger("indexer_visited") : D.getDouble("indexer_visited").intValue();
-            ud.crawler_visited = (D.get("crawler_visited") instanceof Integer) ? D.getInteger("crawler_visited") : D.getDouble("crawler_visited").intValue();
-            ud.urls_points_to_this_document = (ArrayList<String>) D.get("urls_points_to_this_document");
-        }
-
-        if (ud == null)
-            return;
-        //System.out.println(ud.toString());
-
-        if (ud.urls_points_to_this_document == null) ud.urls_points_to_this_document = new ArrayList<>();
-
-        if(!ud.urls_points_to_this_document.contains(url1))
-        {
-            ud.urls_points_to_this_document.add(url1);
-            Bson filter = Filters.eq("url", url2);
-            col.deleteMany(filter);
-            col.insertOne(class_to_document(ud));
-        }
-        //close_server();
     }
 
     public String get_next_document_to_visit()
@@ -270,6 +197,37 @@ public class Mongod {
         //start_server();
         MongoCollection<Document> col = db.getCollection("urls");
         return (int)col.countDocuments();
+    }
+
+    public double get_priority(String url)
+    {
+        Document query = new Document("url",url);
+
+        MongoCollection<Document> col = db.getCollection("urls");
+
+        FindIterable<Document> ret = col.find(query);
+
+        // moa is edited here
+        double priority = 0.0;
+
+        for (Document D : ret)
+        {
+            priority = D.getDouble("priority");
+        }
+
+        update_crawler_visited(url);
+
+        return priority;
+    }
+
+    public void updatePriority(double priority, String url)
+    {
+        MongoCollection<Document> col = db.getCollection("urls");
+        Bson filter = Filters.eq("url", url);
+        double curr_priority = get_priority(url);
+        Bson updateOperation = Updates.set("priority", curr_priority + 0.9 * priority);
+        // create an update operation to modify the document
+        col.updateOne(filter, updateOperation);
     }
 
 

@@ -9,7 +9,7 @@ class url_document {
     int sid; // to make it bfs auto incremental
     int crawler_visited; // crawler flag
 
-    ArrayList<String> urls_points_to_this_document;
+    double priority;
 };
 
 class url_tag {

@@ -22,9 +22,7 @@ public class testing {
         Mongod mongo = new Mongod();
         mongo.start_server();
 
-        mongo.insert_into_db("urls", mongo.make_crawler_document("https://www.google.com/search?q=facebook&source=hp&ei=ocdXZPuiDvenkdUP_qKdmAo&iflsig=AOEireoAAAAAZFfVse4PVk-KPvuSUjbNZsK4sbu7YYvY&gs_ssp=eJzj4tLP1TfIyK1MKy5TYDRgdGDw4khLTE5Nys_PBgBmYAfL&oq=fac&gs_lcp=Cgdnd3Mtd2l6EAMYADIRCC4QgwEQxwEQsQMQ0QMQgAQyCwgAEIAEELEDEIMBMgsIABCABBCxAxCDATILCAAQgAQQsQMQgwEyCwgAEIAEELEDEIMBMgsIABCKBRCxAxCDATILCAAQgAQQsQMQgwEyCwgAEIAEELEDEIMBMgsIABCABBCxAxCDATILCAAQigUQsQMQgwE6EQguEIAEELEDEIMBEMcBENEDOgsILhCABBCxAxCDAToOCC4QgAQQsQMQgwEQ1AI6CwguEIoFELEDEIMBUEpY_QJgsAhoAXAAeACAAXqIAdUCkgEDMC4zmAEAoAEBsAEA&sclient=gws-wiz",
-                "testing"
-                , -8));
+
 
         mongo.close_server();
 

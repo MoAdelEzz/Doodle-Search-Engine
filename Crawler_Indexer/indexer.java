@@ -39,7 +39,8 @@ public class indexer implements Runnable {
 
             for (String tempWord : Words)
             {
-                tempWord = stemming.stem(tempWord);
+                if (isStopWord(tempWord)) continue;
+                tempWord = stemming.stem(tempWord).toLowerCase();
 
                 if (tempWord.contains("[^ ]"))
                     continue;

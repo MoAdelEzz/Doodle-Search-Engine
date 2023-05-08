@@ -95,7 +95,7 @@ public class queryEngine implements Runnable{
 
         for (int i = 0; i < arr.length; i++) {
             String curLetter = arr[i].toLowerCase();
-            curLetter = stemming.stem(curLetter);
+            curLetter = stemming.stem(curLetter).toLowerCase();
             //System.out.println(_ofallDocs);
 
             System.out.println(curLetter);
