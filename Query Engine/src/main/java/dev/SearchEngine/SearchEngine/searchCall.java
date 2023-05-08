@@ -1,34 +1,47 @@
 package dev.SearchEngine.SearchEngine;
+import com.mongodb.client.model.Filters;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
+import java.util.logging.Filter;
 
 public class searchCall {
-
     static String query = null;
-    static int ThreadCnt = 0;
-    searchCall(int Num_of_threads, String s)
+    static int ThreadCnt = 1;
+    searchCall(int thread_count, String query)
     {
-        ThreadCnt = Num_of_threads;
-        query = s;
+        this.ThreadCnt = thread_count;
+        this.query = query;
     }
-    public static ArrayList<String> main() {
-        HashMap<String, ArrayList<Pair<String, Double>>> prioTable =
-                new HashMap<String, ArrayList<Pair<String, Double>>>(); // pageID , string
 
+    public static ArrayList<String> main(String[] args) {
+        HashMap<String, ArrayList<WordData>> prioTable =
+                new HashMap<String, ArrayList<WordData>>(); // pageID , string
         Mongod m = new Mongod();
         m.start_server();
-        /*
-        Scanner s = new Scanner(System.in);
-        System.out.println("call");
 
-        System.out.print("Enter no of Threads = ");
-        int ThreadCnt = s.nextInt();
+        if (query == null) {
+            Scanner s = new Scanner(System.in);
+            System.out.println("aghuhhhhhhhhhh");
 
-        System.out.print("Search for : ");
-        String query = s.next();
-        */
+            System.out.print("Enter no of Threads = ");
+            ThreadCnt = s.nextInt();
+            s.nextLine();
+
+            System.out.print("Search for : ");
+            query = s.nextLine();
+        }
+
 
         queryEngine q = new queryEngine(m,null,ThreadCnt,prioTable,null,0);
-        return q.main(query);
+        q.main(query);
+
+        ArrayList<String> res = new ArrayList<>();
+        for (String url : prioTable.keySet())
+        {
+            res.add(m.db.getCollection("urls").find(Filters.eq("uid",url)).first().getString("url"));
+        }
+        return res;
     }
 }

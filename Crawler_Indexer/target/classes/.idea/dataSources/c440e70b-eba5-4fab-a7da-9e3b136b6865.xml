@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataSource name="@localhost">
+  <database-model serializer="dbm" dbms="MONGO" family-id="MONGO" format-version="4.45">
+    <root id="1">
+      <ServerVersion>4.2.24</ServerVersion>
+    </root>
+    <schema id="2" parent="1" name="admin"/>
+    <schema id="3" parent="1" name="config"/>
+    <schema id="4" parent="1" name="local"/>
+    <schema id="5" parent="1" name="nahida_today"/>
+    <schema id="6" parent="1" name="test">
+      <Current>1</Current>
+    </schema>
+    <table id="7" parent="6" name="indexerTable"/>
+    <table id="8" parent="6" name="tags_content"/>
+    <table id="9" parent="6" name="urls"/>
+    <column id="10" parent="7" name="_id">
+      <DasType>ObjectId|12s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="11" parent="7" name="count">
+      <DasType>Array|2003s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="12" parent="7" name="pageID">
+      <DasType>String|12s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="13" parent="7" name="tagID">
+      <DasType>Array|2003s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="14" parent="7" name="word">
+      <DasType>String|12s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="15" parent="8" name="_id">
+      <DasType>ObjectId|12s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="16" parent="8" name="Content">
+      <DasType>String|12s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="17" parent="8" name="id">
+      <DasType>Int32|4s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="18" parent="8" name="tagname">
+      <DasType>String|12s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="19" parent="8" name="uid">
+      <DasType>String|12s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="20" parent="9" name="_id">
+      <DasType>ObjectId|12s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="21" parent="9" name="crawler_visited">
+      <DasType>Int32|4s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="22" parent="9" name="indexer_visited">
+      <DasType>Int32|4s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="23" parent="9" name="sid">
+      <DasType>Int32|4s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="24" parent="9" name="uid">
+      <DasType>String|12s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="25" parent="9" name="url">
+      <DasType>String|12s</DasType>
+      <Position>1</Position>
+    </column>
+    <column id="26" parent="9" name="urls_points_to_this_document">
+      <DasType>list|4999545s</DasType>
+      <Position>2</Position>
+    </column>
+  </database-model>
+</dataSource>

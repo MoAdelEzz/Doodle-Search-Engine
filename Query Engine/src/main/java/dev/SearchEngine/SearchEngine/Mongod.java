@@ -18,7 +18,11 @@ import java.util.logging.Logger;
 public class Mongod {
 
     String lock = "";
+<<<<<<< Updated upstream
     String dbname = "search_engine";
+=======
+    String dbname = "test";
+>>>>>>> Stashed changes
     MongoClient client = null;
     MongoDatabase db = null;
 

@@ -25,6 +25,7 @@ public class crawler implements Runnable {
     private final ArrayList<Thread> threads_array = new ArrayList<>();
     private final ArrayList<String> seed = new ArrayList<>(
             Arrays.asList(
+<<<<<<< Updated upstream
                     "https://www.bbc.com/news",
                     "https://www.gsmarena.com",
                     "https://en.wikipedia.org/wiki/Main_Page",
@@ -34,6 +35,16 @@ public class crawler implements Runnable {
                     "https://www.amazon.com/",
                     "https://stackoverflow.com",
                     "https://www.tutorialspoint.com"
+=======
+                    "https://moadelezz.github.io/deleteThis/"
+                    /*
+                    "https://twitter.com/animetv_jp/status/1611734963165995009"
+
+                                  "https://www.facebook.com/",
+                    "https://www.youtube.com/",
+                     */
+
+>>>>>>> Stashed changes
             ));
 
     public void run() {

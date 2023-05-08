@@ -26,7 +26,8 @@ public void haha(){
 public String create (@RequestBody String searchQuery){
     searchCall MoA = new searchCall(10,searchQuery);
     ArrayList<String> tempArr = new ArrayList<String>();
-     tempArr =  MoA.main();
+    String[] arr = new String[1];
+     tempArr =  MoA.main(arr);
       krkr = tempArr;
   //  krkr.add(searchQuery);
     return searchQuery;

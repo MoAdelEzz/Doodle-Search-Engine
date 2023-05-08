@@ -21,7 +21,11 @@ public class Mongod {
     int j;
     boolean crawler_init = false;
     final String lock = "";
+<<<<<<< Updated upstream
     String dbname = "search_engine";
+=======
+    String dbname = "test1";
+>>>>>>> Stashed changes
     MongoClient client = null;
     MongoDatabase db = null;
 

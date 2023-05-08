@@ -22,10 +22,32 @@ class url_tag {
     String Content;
 }
 
-class Human{
-    String name;
-    public Human(String name) {
-        this.name = name;
+
+class WordData{
+    String word;
+    Double prio;
+    ArrayList<Integer> tags;
+
+    public WordData(String word, Double prio, ArrayList<Integer> tags) {
+        this.word = word;
+        this.prio = prio;
+        this.tags = tags;
+    }
+}
+
+class QueryResults {
+    String url;
+    String title;
+    String paragraph;
+    double priority;
+
+    public QueryResults(String url, String title, String paragraph) {
+        this.url = url;
+        this.title = title;
+        this.paragraph = paragraph;
+    }
+    public double getPriority() {
+        return priority;
     }
 }
 
