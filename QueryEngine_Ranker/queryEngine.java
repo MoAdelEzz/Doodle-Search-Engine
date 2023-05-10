@@ -1,3 +1,7 @@
+import com.mongodb.BasicDBObject;
+import com.mongodb.ExplainVerbosity;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
 import opennlp.tools.stemmer.PorterStemmer;
 import org.bson.Document;
@@ -96,20 +100,17 @@ public class queryEngine implements Runnable{
                     second2 += part2;
                 }
 
-                jj = first2;
+                //jj = first2;
                 //SortedSet<Integer> set = new TreeSet<>();
 
-
-
-
-                for (Map.Entry<String, ArrayList<WordData>> entry : prioTable.entrySet()) {
-                    if (jj >= first2 && jj <= (second2)){
+                Object [] arr = prioTable.entrySet().toArray();
+                for ( jj = first2; jj <= (second2); jj++) {
                         HashMap<Integer, Integer> sortingTags
                                 = new HashMap<Integer, Integer>();// tag itself , pri of tag
-
-                        for (int i = 0; i < entry.getValue().size(); i++) {
-                            for (int k:entry.getValue().get(i).tags) {
-
+                         Map.Entry entry = Map.Entry.class.cast(arr[jj]);
+                         ArrayList<WordData> arrOFWord = ArrayList.class.cast( entry.getValue());
+                        for (int i = 0; i < arrOFWord.size(); i++) {
+                            for (int k:arrOFWord.get(i).tags) {
                                 if (sortingTags.containsKey(k)) {
                                     int val = sortingTags.get(k);
                                     val++;
@@ -140,30 +141,66 @@ public class queryEngine implements Runnable{
                             }
                         }
 
-                        Document d1 = mongod.db.getCollection("tags_content")
-                                .find(Filters.
-                                        and(Filters.eq("uid", entry.getKey()), Filters.eq("id", maxEntry.getKey()))).first();
+                        // SLOW
+//                        Document d1 = mongod.db.getCollection("tags_content")
+//                                .find(Filters.
+//                                        and(Filters.eq("uid", entry.getKey()), Filters.eq("id", maxEntry.getKey()))).first();
+//                        // Fast
+//                    Document d1 = mongod.db.getCollection("tags_content")
+//                            .find(Filters.eq("id", maxEntry.getKey())).first();
+//
+//                    System.out.println(maxEntry);
+//
+//                        if(maxEntry2 != null)
+//                            System.out.println(maxEntry2);
 
-                        System.out.println(maxEntry);
+//                        System.out.println(d1);
 
-                        if(maxEntry2 != null)
-                            System.out.println(maxEntry2);
+                        FindIterable<Document> d1 = mongod.db.getCollection("tags_content")
+                                .find( Filters.eq("uid", entry.getKey()));
 
-                        //System.out.println(d1);
+                        String Url = mongod.db.getCollection("urls")
+                            .find(Filters.eq("uid", entry.getKey())).first().get("url",String.class);
+
+                        QueryResults firstResult  = new QueryResults(null,null,null);
+
+                        for (Document d : d1 ) {
+                            if (d.get("id") == maxEntry.getKey()) {
+
+                                firstResult.url = Url;
+                                firstResult.title = d.get("Content", String.class);
+                                break;
+                            }
+                        }
+
+//                        Document explanation =  mongod.db.getCollection("tags_content").aggregate(
+//                                Arrays.asList(
+//                                        Aggregates.match(Filters.
+//                                            and(Filters.eq("uid", entry.getKey()), Filters.eq("tagname", "h1")))
+//                                )
+//                        ).first();
+
+//                        BasicDBObject query = new BasicDBObject();
+//                        query.put("uid",String.class.cast(entry.getKey()) );
+//                        query.put("id", maxEntry.getKey());
+//
+//                        Document d1 = mongod.db.getCollection("tags_content")
+//                                .find(query).first();
+//
+//
+//                        System.out.println("from thread " + d1);
+                        System.out.println(firstResult.url);
+                        System.out.println(firstResult.title);
 
                         double sum = 0;
-                        for (int i = 0; i < entry.getValue().size(); i++) {
-                            sum += entry.getValue().get(i).prio;
+                        for (int i = 0; i < arrOFWord.size(); i++) {
+                            sum += arrOFWord.get(i).prio;
                         }
 
                         synchronized (mongod.lock) {
                             //res.add(new Pair<String, Double>(entry.getKey(), sum));
                             //res.add(new QueryResults(entry.getKey(),))
                         }
-                    }else {
-                        continue;
-                    }
-                    jj++;
                 }
 
                 break;

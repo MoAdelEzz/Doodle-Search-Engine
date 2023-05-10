@@ -20,6 +20,9 @@ public class searchCall {
 
 
         queryEngine q = new queryEngine(m,null,ThreadCnt,prioTable,null,0);
+        long ll = System.nanoTime();
         q.main(query);
+        long lll = System.nanoTime();
+        System.out.println("time taken = "+ (lll - ll)*1e-9);
     }
 }

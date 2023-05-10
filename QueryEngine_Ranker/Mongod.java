@@ -30,7 +30,7 @@ public class Mongod {
 
         client = MongoClients.create("mongodb://localhost:27017");
 
-        db = client.getDatabase("test1");
+        db = client.getDatabase("test");
 
     }
 
